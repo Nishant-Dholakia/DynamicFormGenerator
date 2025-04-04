@@ -25,6 +25,7 @@ public class FormController {
     private final FormService formService;
     private final UserService userService;
     private final QuestionService questionService;
+
     @PostMapping("/save")
     public ResponseEntity<String> addForm(@RequestBody FormData formData)
     {
@@ -49,7 +50,7 @@ public class FormController {
     }
 
     @GetMapping("/get/{id}")
-    public Optional<FormData> getForm(@PathVariable("id") UUID id)
+    public FormData getForm(@PathVariable("id") UUID id)
     {
         return formService.getFormById(id);
     }
@@ -60,13 +61,12 @@ public class FormController {
         return formService.getAllForms();
     }
 
-    @PutMapping(path = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/update", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateForm(@RequestBody FormData formData) {
         try {
             return ResponseEntity.ok(formService.updateForm(formData));
 
         } catch (Exception e) {
-            // Log the full exception for debugging
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred in updating: " + e.getMessage());
         }

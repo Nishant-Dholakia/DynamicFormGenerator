@@ -30,10 +30,10 @@ public class UserController {
     @PutMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody User user)
     {
-        if(user.getUserid() == null)
+        if(user == null || user.getUserid() == null)
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Invalid userid");
 
-        User u1 = userService.addUser(user);
+        User u1 = userService.updateUser(user);
         if(u1 == null)
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User not updated");
         return ResponseEntity.ok("User Updated");

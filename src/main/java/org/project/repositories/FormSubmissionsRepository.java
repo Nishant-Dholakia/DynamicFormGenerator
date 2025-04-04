@@ -12,12 +12,6 @@ import java.util.UUID;
 
 public interface FormSubmissionsRepository extends JpaRepository<FormSubmissions, UUID>
 {
-
-    Optional<FormSubmissions> findByEmailid(String emailid);
-
-    @Query("delete from FormSubmissions f where f.emailid=:emailid")
-    void deleteByEmailid(@Param("emailid") String emailid);
-
     @Query("from FormSubmissions fs where fs.form.formid =:id ")
     List<FormSubmissions> findByFormId(@Param("id") UUID id);
 }

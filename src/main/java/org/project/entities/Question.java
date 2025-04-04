@@ -17,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString(exclude = "form")
+@ToString(exclude = {"form"})
 public class Question {
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)

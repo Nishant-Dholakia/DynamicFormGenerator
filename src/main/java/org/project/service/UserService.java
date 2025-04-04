@@ -35,32 +35,31 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
-    public Optional<User> getUSerByUsername(String username)
-    {
-        return userRepository.findByUsername(username);
-    }
-
     public List<User> getAllUsers()// only for admin
     {
         return userRepository.findAll();
     }
-
-
 
     public void deleteUserById(UUID id)
     {
         userRepository.deleteById(id);
     }
 
-    public void deleteUserByUsername(String username)
-    {
-        userRepository.deleteByUsername(username);
-    }
-
-
     public void toggleEnable(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("USer not found"));
+        User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("User not found"));
         user.setEnabled(!user.getEnabled());
         userRepository.save(user);
     }
+
+    public User updateUser(User user) {
+        User existingUser = userRepository.findById(user.getUserid())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getUsername() != null) existingUser.setUsername(user.getUsername());
+        if (user.getEmailid() != null) existingUser.setEmailid(user.getEmailid());
+        if (user.getContact() != 0) existingUser.setContact(user.getContact());
+
+        return userRepository.save(existingUser);
+    }
+
 }

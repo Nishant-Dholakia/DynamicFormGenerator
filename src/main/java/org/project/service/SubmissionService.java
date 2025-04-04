@@ -26,10 +26,7 @@ public class SubmissionService {
     {
         return formSubmissionsRepository.findById(id);
     }
-    public Optional<FormSubmissions> getSubmissionByEmailid(String emailid)
-    {
-        return formSubmissionsRepository.findByEmailid(emailid);
-    }
+
     public List<FormSubmissions> getAllSubmissions()
     {
         return formSubmissionsRepository.findAll();
@@ -39,10 +36,6 @@ public class SubmissionService {
     {
         formSubmissionsRepository.deleteById(id);
     }
-    public void deleteSubmissionByEmailid(String emailid)
-    {
-        formSubmissionsRepository.deleteByEmailid(emailid);
-    }
 
 
     public List<FormSubmissions> getSubmissionByFormId(UUID id) {
@@ -50,7 +43,8 @@ public class SubmissionService {
     }
 
     public FormSubmissions updateSubmission(FormSubmissions formSubmission) {
-        FormSubmissions submission = formSubmissionsRepository.findById(formSubmission.getSubmissionid()).orElseThrow(()->new RuntimeException("Submission not found..."));
+        FormSubmissions submission = formSubmissionsRepository.findById(formSubmission.getSubmissionid())
+                                    .orElseThrow(()->new RuntimeException("Submission not found..."));
 
         submission.setAnswers(formSubmission.getAnswers());
         submission.setForm(formSubmission.getForm());

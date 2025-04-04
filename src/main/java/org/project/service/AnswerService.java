@@ -6,6 +6,9 @@ import org.project.entities.Answer;
 import org.project.repositories.AnswerRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AnswerService {
@@ -13,5 +16,9 @@ public class AnswerService {
     public Answer saveAnswer(Answer answer)
     {
         return answerRepository.save(answer);
+    }
+
+    public Optional<Answer> getAnswerById(UUID answerid) {
+        return answerRepository.findById(answerid);
     }
 }

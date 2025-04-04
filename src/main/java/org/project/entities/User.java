@@ -38,7 +38,7 @@ public class User {
 
     private Boolean enabled = true;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY,orphanRemoval = true)
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JsonManagedReference("user-form")
     private List<FormData> forms;
 

@@ -37,7 +37,7 @@ public class FormSubmissions {
     @JsonBackReference("form-submission")
     private FormData form;
 
-    @OneToMany(mappedBy = "submission",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "submission",cascade = CascadeType.ALL)
     @JsonManagedReference("submission-answer")
     private List<Answer> answers;
 

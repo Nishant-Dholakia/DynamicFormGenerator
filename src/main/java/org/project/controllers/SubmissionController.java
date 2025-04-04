@@ -1,6 +1,5 @@
 package org.project.controllers;
 
-
 import lombok.RequiredArgsConstructor;
 import org.project.entities.Answer;
 import org.project.entities.FormData;
@@ -32,16 +31,17 @@ public class SubmissionController {
     @PostMapping(path = "/save", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> saveSubmission(@RequestBody FormSubmissions submission) {
         try {
-            if (submission.getForm() == null || submission.getForm().getFormid() == null) {
+            if (submission == null)
+                throw new RuntimeException("Submission not specified...");
+            if (submission.getForm() == null || submission.getForm().getFormid() == null)
                 throw new RuntimeException("Form not specified...");
-            }
 
-            // Fetch the form from DB to ensure it exists
-            FormData formData = formService.getFormById(submission.getForm().getFormid())
-                    .orElseThrow(() -> new RuntimeException("Form not found!"));
+            // Fetch the form to ensure it's managed by JPA
+            FormData formData = formService.getFormById(submission.getForm().getFormid());
             submission.setForm(formData);
+            submission.setSubmissionid(null); // Ensuring it's a new submission
 
-            // Save submission FIRST to prevent transient issues
+            // Save the submission FIRST
             submission = submissionService.submitForm(submission);
 
             List<Answer> acceptedAns = new ArrayList<>();
@@ -55,20 +55,28 @@ public class SubmissionController {
                         .orElseThrow(() -> new RuntimeException("Question not found!"));
                 ans.setQuestion(ques);
                 ans.setSubmission(submission);
-                ans.setAnswerid(null);
-                acceptedAns.add(answerService.saveAnswer(ans));
+
+                if (ans.getAnswerid() == null) {
+                    acceptedAns.add(answerService.saveAnswer(ans));
+                } else {
+                    // Fetch existing answer and update it
+                    Answer existingAnswer = answerService.getAnswerById(ans.getAnswerid())
+                            .orElseThrow(() -> new RuntimeException("Answer not found!"));
+                    existingAnswer.setResponse(ans.getResponse()); // Only update response
+                    acceptedAns.add(answerService.saveAnswer(existingAnswer));
+                }
             }
 
             submission.setAnswers(acceptedAns);
-            submissionService.submitForm(submission);
 
             return ResponseEntity.ok("Form Submitted: " + submission);
         } catch (Exception e) {
             System.out.println("Error in submission save: ");
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Form submission failed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Form submission failed: " + e.getMessage());
         }
     }
+
 
     @GetMapping("/all")
     public List<FormSubmissions> getAllSubmissions()

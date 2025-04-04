@@ -10,10 +10,4 @@ import java.util.UUID;
 @Repository
 
 public interface FormDataRepository extends JpaRepository<FormData, UUID>
-{
-
-    Optional<FormData> findByTitle(String title);
-
-    @Query("delete from FormData f where f.title=:title")
-    void deleteByTitle(@Param("title") String title);
-}
+{}

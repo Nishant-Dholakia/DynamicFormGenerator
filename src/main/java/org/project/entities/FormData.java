@@ -34,12 +34,12 @@ public class FormData {
     @Column(nullable = false)
     private String category;
 
-    @OneToMany(mappedBy = "form", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "form", cascade = CascadeType.ALL)
     @JsonManagedReference("form-question")
     private List<Question> questions;
 
 
-    @OneToMany(mappedBy = "form",cascade = CascadeType.ALL,orphanRemoval = true )
+    @OneToMany(mappedBy = "form",cascade = CascadeType.ALL)
     @JsonManagedReference("form-submission")
     private List<FormSubmissions> submissions;
 

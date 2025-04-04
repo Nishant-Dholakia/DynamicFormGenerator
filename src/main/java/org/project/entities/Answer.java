@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"question", "submission"})
 @Table(name = "answers")
 public class Answer {
 
@@ -32,7 +32,6 @@ public class Answer {
     private FormSubmissions submission;
 
     @Convert(converter = AnswerConverter.class)
-    @Lob  // Large Object for JSON storage
     @Column(columnDefinition = "TEXT")
     private Map<String, Object> response;
 
