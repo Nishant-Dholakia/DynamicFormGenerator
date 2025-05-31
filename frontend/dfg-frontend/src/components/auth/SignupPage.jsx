@@ -1,13 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function SignupForm() {
   const [formData, setFormData] = useState({
-  username: '',
-  emailid: '',
-  password: '',
-  contact: ''
-});
-
+    username: '',
+    emailid: '',
+    password: '',
+    contact: ''
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -16,31 +19,59 @@ export default function SignupForm() {
     });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
-  try {
-    const response = await fetch('http://localhost:8080/user/save', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
-    });
+    try {
+      // 1. First, register the user
+      const signupResponse = await fetch('http://localhost:8080/user/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
 
-    const text = await response.text();
-    if (response.ok) {
-      alert("Signup successful: " + text);
+      if (!signupResponse.ok) {
+        const errorData = await signupResponse.text();
+        throw new Error(errorData || 'Signup failed');
+      }
+
+      // 2. If signup successful, automatically log the user in
+      const loginResponse = await fetch('http://localhost:8080/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password
+        })
+      });
+
+      if (!loginResponse.ok) {
+        const errorData = await loginResponse.text();
+        throw new Error(errorData || 'Login failed after signup');
+      }
+
+      const { token } = await loginResponse.json();
+
+      // 3. Store the JWT token securely
+      localStorage.setItem('authToken', token);
+      
+      // 4. Reset form and redirect
       setFormData({ username: '', emailid: '', password: '', contact: '' });
-    } else {
-      alert("Signup failed: " + text);
+      navigate('/dashboard'); // Redirect to dashboard or home page
+      
+    } catch (err) {
+      console.error("Authentication error:", err);
+      setError(err.message || 'An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-  } catch (err) {
-    console.error("Error during signup:", err);
-    alert("An error occurred. Please try again.");
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-700 flex items-center justify-center px-4 py-12">
@@ -64,7 +95,13 @@ const handleSubmit = async (e) => {
           <p className="text-gray-300 text-sm mt-2">Join us and start your journey</p>
         </div>
 
-        <form  onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 text-red-200 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="group">
             <label className="block mb-2 text-sm font-medium text-gray-200 group-focus-within:text-blue-400 transition-colors">
               Full Name
@@ -146,16 +183,29 @@ const handleSubmit = async (e) => {
               </svg>
             </div>
         </div>
-
+          
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-transparent"
+            disabled={isLoading}
+            className={`w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-transparent ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
             <span className="flex items-center justify-center space-x-2">
-              <span>Create Account</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
+              {isLoading ? (
+                <>
+                  <span>Processing...</span>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </>
+              ) : (
+                <>
+                  <span>Create Account</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </>
+              )}
             </span>
           </button>
         </form>
@@ -164,7 +214,7 @@ const handleSubmit = async (e) => {
         <div className="mt-8 text-center">
           <p className="text-gray-400 text-sm">
             Already have an account?{' '}
-            <a href="#" className="text-blue-400 hover:text-blue-300 font-medium transition-colors hover:underline">
+            <a href="/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors hover:underline">
               Sign in
             </a>
           </p>

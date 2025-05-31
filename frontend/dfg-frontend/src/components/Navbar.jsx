@@ -29,7 +29,7 @@ function Navbar() {
             All Forms
           </Link>
           <Link
-            to="/signup"
+            to="/auth/signup"
             className="hover:text-blue-400 transition-colors"
           >
             Signup
