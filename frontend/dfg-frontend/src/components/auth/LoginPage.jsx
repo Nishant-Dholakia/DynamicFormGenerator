@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -10,9 +11,8 @@ export default function LoginPage() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useContext(AuthContext);
 
-  // Pre-fill if redirected from registration
-  const prefilledEmail = location.state?.prefilledEmail || '';
 
   const handleChange = (e) => {
     setFormData({
@@ -38,10 +38,10 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        // const errorData = await response.json();
+       
         throw new Error('Login failed');
       }
-      
+      login();
       navigate(location.state?.from || '/', { 
         replace: true,
         state: { justLoggedIn: true }

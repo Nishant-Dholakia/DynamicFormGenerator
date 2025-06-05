@@ -1,16 +1,17 @@
 
 import './App.css'
+import { AuthProvider } from './components/context/AuthContext';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import { Outlet } from 'react-router-dom';
 
 function App() {
   return (
-    <div>
+    <AuthProvider>
       <Navbar />
       <Outlet />
       <Footer />
-    </div>
+    </AuthProvider>
   );
 }
 
