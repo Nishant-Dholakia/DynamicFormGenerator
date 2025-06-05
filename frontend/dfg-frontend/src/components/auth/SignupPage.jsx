@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate ,Link} from 'react-router-dom';
 
 export default function SignupForm() {
   const [formData, setFormData] = useState({
@@ -38,32 +38,15 @@ export default function SignupForm() {
         const errorData = await signupResponse.text();
         throw new Error(errorData || 'Signup failed');
       }
-
-      // 2. If signup successful, automatically log the user in
-      const loginResponse = await fetch('http://localhost:8080/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password
-        })
+      console.log(signupResponse)
+    setTimeout(() => {
+      navigate('/auth/login', {
+        state: { 
+          prefilledEmail: formData.emailid,
+          registered: true 
+        }
       });
-
-      if (!loginResponse.ok) {
-        const errorData = await loginResponse.text();
-        throw new Error(errorData || 'Login failed after signup');
-      }
-
-      const { token } = await loginResponse.json();
-
-      // 3. Store the JWT token securely
-      localStorage.setItem('authToken', token);
-      
-      // 4. Reset form and redirect
-      setFormData({ username: '', emailid: '', password: '', contact: '' });
-      navigate('/dashboard'); // Redirect to dashboard or home page
+    }, 1500);
       
     } catch (err) {
       console.error("Authentication error:", err);
@@ -214,9 +197,10 @@ export default function SignupForm() {
         <div className="mt-8 text-center">
           <p className="text-gray-400 text-sm">
             Already have an account?{' '}
-            <a href="/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors hover:underline">
+            <Link to="/auth/login" state={{ from: location.state?.from }} className="text-blue-400 hover:text-blue-300 font-medium transition-colors hover:underline">
               Sign in
-            </a>
+            </Link>
+            
           </p>
         </div>
       </div>

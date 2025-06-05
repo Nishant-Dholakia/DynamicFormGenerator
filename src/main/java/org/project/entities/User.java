@@ -34,7 +34,7 @@ public class User {
     private long contact;
 
     @Column(nullable = false)
-    private String role = "ROLE_USER";
+    private String role = "USER";
 
     private Boolean enabled = true;
 
