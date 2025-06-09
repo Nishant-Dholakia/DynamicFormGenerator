@@ -4,6 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.project.dto.LoginRequest;
+import org.project.dto.UserDto;
+import org.project.entities.User;
+import org.project.repositories.UserRepository;
 import org.project.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,41 +33,55 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     @Autowired
     private final JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private final UserRepository userRepository;
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request,
-                                   HttpServletResponse response) {
-        // ... authentication logic (e.g., check credentials) ...
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+        // Authenticate user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtTokenUtil.generateToken(userDetails);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        // Generate JWT and set as cookie
+        String token = jwtTokenUtil.generateToken((UserDetails) authentication.getPrincipal());
         ResponseCookie cookie = ResponseCookie.from("authToken", token)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false) // Set to 'true' in production (HTTPS)
                 .path("/")
                 .maxAge(Duration.ofHours(1))
-                .sameSite("Lax")
+                .sameSite("Lax") // Critical for cross-site cookies
                 .build();
-//        System.out.println("token - " + token);
+        System.out.println("Token: " + token);
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/auth/check")
-    public ResponseEntity<Boolean> checkAuth() {
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        new SecurityContextLogoutHandler().logout(request, response,
+                SecurityContextHolder.getContext().getAuthentication());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<Boolean> verifyAuth() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return ResponseEntity.ok(!(auth instanceof AnonymousAuthenticationToken));
-    }
-    @PostMapping("/auth/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-        SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-        logoutHandler.logout(request, response, SecurityContextHolder.getContext().getAuthentication());
-        return ResponseEntity.ok().build();
+        boolean isAuthenticated = auth != null &&
+                auth.isAuthenticated() &&
+                !(auth instanceof AnonymousAuthenticationToken);
+        return ResponseEntity.ok(isAuthenticated);
     }
 
+    @GetMapping("/user")
+    public ResponseEntity<UserDto> getCurrentUser() {
+        System.out.println("auth/user ma avyo");
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println(username);
+        User user = userRepository.findByUsernameOrEmailid(username).orElseThrow(()-> new UsernameNotFoundException("Invalid username!!!"));
+        System.out.println("In auth/user: \n"+user);
+        return ResponseEntity.ok(new UserDto(user));
+    }
 }

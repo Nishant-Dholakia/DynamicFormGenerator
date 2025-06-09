@@ -28,24 +28,17 @@ export default function LoginPage() {
 
     console.log(formData," submitting")
     try {
-      const response = await fetch('http://localhost:8080/auth/login', {
-        method: 'POST',
-        credentials: 'include', // Essential for cookies
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
+      
+      if(login(formData))
+      {
 
-      if (!response.ok) {
-       
-        throw new Error('Login failed');
+        navigate(location.state?.from || '/', { 
+          replace: true,
+          state: { justLoggedIn: true }
+        });
       }
-      login();
-      navigate(location.state?.from || '/', { 
-        replace: true,
-        state: { justLoggedIn: true }
-      });
+      else  
+        setError("Login Failed!!")
 
     } catch (err) {
       console.error("Login error:", err);
