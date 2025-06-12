@@ -1,13 +1,12 @@
 package org.project.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.project.dto.QuestionDto;
 import org.project.mapToJsonConverter.QuestionConverter;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,5 +42,24 @@ public class Question {
 
         private String defaultValue;
         private int orderno;
+
+        // Constructor from QuestionDto with options conversion
+        public Question(QuestionDto dto) {
+                this.question = dto.getLabel();
+                this.answer_type = dto.getType();
+                this.placeholder = dto.getPlaceholder();
+                this.is_required = dto.isRequired();
+                this.orderno = dto.getOrder() != null ? dto.getOrder() : 0;
+
+                // Convert DTO options (Object) to Entity options (String)
+                this.options = dto.getOptions();
+        }
+
+        // Constructor from QuestionDto with FormData
+        public Question(QuestionDto dto, FormData form) {
+                this(dto);
+                this.form = form;
+        }
+
 
 }

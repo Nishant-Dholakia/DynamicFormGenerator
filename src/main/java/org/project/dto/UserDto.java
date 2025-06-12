@@ -17,7 +17,6 @@ public class UserDto {
     private String emailid;
     private long contact;
     private String role;
-    private Date createdAt;
     private boolean enabled;
 
     public UserDto(User user)

@@ -1,10 +1,10 @@
 package org.project.entities;
-
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.project.dto.UserDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,4 +42,13 @@ public class User {
     @JsonManagedReference("user-form")
     private List<FormData> forms;
 
+    public User(UserDto dto) {
+        this.userid = dto.getId();
+        this.username = dto.getUsername();
+        this.emailid = dto.getEmailid();
+        this.contact = dto.getContact();
+        this.role = dto.getRole() != null ? dto.getRole() : "USER";
+        this.enabled = dto.isEnabled();
+
+    }
 }

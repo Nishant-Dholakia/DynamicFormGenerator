@@ -1,8 +1,12 @@
 package org.project.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.project.dto.FormDto;
 import org.project.entities.FormData;
 import org.project.entities.Question;
+import org.project.entities.User;
 import org.project.repositories.FormDataRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +20,26 @@ import java.util.UUID;
 public class FormService {
     private final FormDataRepository formDataRepository;
     private final QuestionService questionService;
+    private final UserService userService;
+    @Transactional
+    public FormData createFormWithRelationships(FormDto formDto, String username) {
+        // Get user
+        User user = userService.findByUsername(username);
+        if (user == null) {
+            throw new EntityNotFoundException("User not found: " + username);
+        }
 
-    public FormData addForm(FormData formData)
-    {
+        // Create form with user relationship
+        FormData formData = new FormData(formDto, user);
+
+        // The constructor already handles question relationships, but let's ensure they're properly set
+        if (formData.getQuestions() != null) {
+            formData.getQuestions().forEach(question -> {
+                question.setForm(formData); // Ensure bidirectional relationship
+            });
+        }
+
+        // Save form (cascade will save questions)
         return formDataRepository.save(formData);
     }
 

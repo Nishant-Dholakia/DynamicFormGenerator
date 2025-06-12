@@ -22,7 +22,7 @@ function Navbar() {
           <Link to="/" className="hover:text-blue-400 transition-colors">
             Home
           </Link>
-          <Link to="/generate" className="hover:text-blue-400 transition-colors">
+          <Link to="/form/generate" className="hover:text-blue-400 transition-colors">
             Generate Form
           </Link>
           <Link to="/forms" className="hover:text-blue-400 transition-colors">
