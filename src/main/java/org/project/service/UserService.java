@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -18,11 +19,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 
 public class UserService {
-
+    @Autowired
     private final UserRepository userRepository;
     @Autowired
     private final PasswordEncoder passwordEncoder;
-
+    @Transactional
     public User addUser(User user)
     {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -40,7 +41,7 @@ public class UserService {
     {
         return userRepository.findAll();
     }
-
+    @Transactional
     public void deleteUserById(UUID id)
     {
         userRepository.deleteById(id);
@@ -51,7 +52,7 @@ public class UserService {
         user.setEnabled(!user.getEnabled());
         userRepository.save(user);
     }
-
+    @Transactional
     public User updateUser(User user) {
         User existingUser = userRepository.findById(user.getUserid())
                 .orElseThrow(() -> new RuntimeException("User not found"));

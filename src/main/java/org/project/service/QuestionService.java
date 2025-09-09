@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.project.entities.Question;
 import org.project.repositories.QuestionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import java.util.UUID;
 public class QuestionService {
     private final QuestionRepository questionRepository;
 
+    @Transactional
     public Question saveQuestion(Question question)
     {
         return questionRepository.save(question);

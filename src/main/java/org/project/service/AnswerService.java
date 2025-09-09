@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.project.entities.Answer;
 import org.project.repositories.AnswerRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -13,6 +14,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AnswerService {
     private final AnswerRepository answerRepository;
+
+    @Transactional
     public Answer saveAnswer(Answer answer)
     {
         return answerRepository.save(answer);

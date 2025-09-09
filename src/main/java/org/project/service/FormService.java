@@ -1,7 +1,6 @@
 package org.project.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.project.dto.FormDto;
 import org.project.entities.FormData;
@@ -9,6 +8,7 @@ import org.project.entities.Question;
 import org.project.entities.User;
 import org.project.repositories.FormDataRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +43,7 @@ public class FormService {
         return formDataRepository.save(formData);
     }
 
+    @Transactional
     public FormData updateForm(FormData updatedForm) {
         UUID formId = updatedForm.getFormid();
         Optional<FormData> existingFormOpt = formDataRepository.findById(formId);
@@ -76,11 +77,13 @@ public class FormService {
         return formDataRepository.findAll();
     }
 
+    @Transactional
     public void deleteFormById(UUID id)
     {
         formDataRepository.deleteById(id);
     }
 
+    @Transactional
     public void toggleActive(UUID id) {
         FormData form = formDataRepository.findById(id).orElseThrow(()-> new RuntimeException("Form not found"));
         form.setIsActive(!form.getIsActive());
