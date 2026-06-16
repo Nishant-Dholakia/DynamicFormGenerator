@@ -2,6 +2,7 @@ package org.project.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.project.dto.FormDto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -36,14 +38,14 @@ public class FormData {
     @Column(nullable = false)
     private String category;
 
-    @OneToMany(mappedBy = "form", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "form", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("form-question")
-    private List<Question> questions;
+    private List<Question> questions = new ArrayList<>();
 
 
-    @OneToMany(mappedBy = "form",cascade = CascadeType.ALL)
-    @JsonManagedReference("form-submission")
-    private List<FormSubmissions> submissions;
+    @OneToMany(mappedBy = "form",cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties(value = {"form"}, allowSetters = true)
+    private List<FormSubmissions> submissions = new ArrayList<>();
 
     @CreationTimestamp
     private LocalDateTime createdAt;

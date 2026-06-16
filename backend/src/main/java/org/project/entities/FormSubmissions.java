@@ -1,8 +1,6 @@
 package org.project.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +9,7 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,12 +33,12 @@ public class FormSubmissions {
 
     @ManyToOne
     @JoinColumn(name = "form_id")
-    @JsonBackReference("form-submission")
+    @JsonIgnoreProperties(value = {"questions", "submissions", "user"}, allowSetters = true)
     private FormData form;
 
-    @OneToMany(mappedBy = "submission",cascade = CascadeType.ALL)
-    @JsonManagedReference("submission-answer")
-    private List<Answer> answers;
+    @OneToMany(mappedBy = "submission",cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties(value = {"submission"}, allowSetters = true)
+    private List<Answer> answers = new ArrayList<>();
 
     @CreationTimestamp
     private LocalDateTime submittedAt;

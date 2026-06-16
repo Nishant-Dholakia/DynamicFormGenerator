@@ -1,19 +1,17 @@
 package org.project.controllers;
 
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.project.dto.FormDto;
 import org.project.entities.FormData;
 import org.project.service.FormService;
-import org.project.service.QuestionService;
-import org.project.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,25 +21,17 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FormController {
     private final FormService formService;
-    private final UserService userService;
-    private final QuestionService questionService;
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveForm(@RequestBody FormDto formDto, HttpServletRequest request) {
+    public ResponseEntity<FormData> saveForm(@RequestBody FormDto formDto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println(formDto);
         if (auth == null || !auth.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Authentication required");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Authentication required");
         }
 
-        try {
-            String username = auth.getName();
-            FormData savedForm = formService.createFormWithRelationships(formDto, username);
-            return ResponseEntity.ok(savedForm);
-        } catch (Exception e) {
-            System.out.println("Error saving form: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving form: " + e.getMessage());
-        }
+        String username = auth.getName();
+        FormData savedForm = formService.createFormWithRelationships(formDto, username);
+        return ResponseEntity.ok(savedForm);
     }
 
     @GetMapping("/get/{id}")

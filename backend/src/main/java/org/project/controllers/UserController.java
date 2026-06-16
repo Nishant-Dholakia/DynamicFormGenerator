@@ -21,7 +21,6 @@ public class UserController {
     public ResponseEntity<String> registerUser(@RequestBody User user)
     {
         User u1 = userService.addUser(user);
-        System.out.println("user save thyo");
         if(u1 == null)
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User not saved");
         return ResponseEntity.ok("User saved");

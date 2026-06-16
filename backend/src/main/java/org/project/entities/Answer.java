@@ -1,5 +1,6 @@
 package org.project.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,7 @@ public class Answer {
 
     @ManyToOne
     @JoinColumn(name = "question_id")
-    @JsonBackReference("question-answer")
+    @JsonIgnoreProperties(value = {"form"}, allowSetters = true)
     private Question question;
 
     @ManyToOne

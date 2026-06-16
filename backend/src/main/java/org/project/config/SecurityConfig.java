@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/user").authenticated()
                         .requestMatchers(HttpMethod.GET, "/auth/verify").authenticated()
                         .requestMatchers(HttpMethod.POST, "/user/save").permitAll()
@@ -46,18 +47,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/user/delete/{id}").hasAuthority("ROLE_ADMIN")
 
                         .requestMatchers(HttpMethod.POST,"/form/save").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
-                        .requestMatchers(HttpMethod.GET,"/form/get/{id}").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
+                        .requestMatchers(HttpMethod.GET,"/form/get/{id}").permitAll()
                         .requestMatchers(HttpMethod.GET,"/form/all").hasAnyAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT,"/form/update").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
                         .requestMatchers(HttpMethod.PUT,"/form/toggle/{id}").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
                         .requestMatchers(HttpMethod.DELETE,"/form/delete/{id}").hasAnyAuthority("ROLE_ADMIN")
 
-                        .requestMatchers(HttpMethod.POST,"/submission/save").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
+                        .requestMatchers(HttpMethod.POST,"/submission/save").permitAll()
                         .requestMatchers(HttpMethod.GET,"/submission/all").hasAnyAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET,"/submission/get/{id}").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
-                        .requestMatchers(HttpMethod.POST,"/submission/form/{id}").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
+                        .requestMatchers(HttpMethod.GET,"/submission/form/{id}").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
                         .requestMatchers(HttpMethod.PUT,"/submission/update").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
-                        .requestMatchers(HttpMethod.POST,"/submission/delete/{id}").hasAnyAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/submission/delete/{id}").hasAuthority("ROLE_ADMIN")
 
                         .anyRequest().authenticated()
                 )
